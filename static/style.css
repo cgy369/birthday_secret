@@ -1,0 +1,667 @@
+:root {
+    --primary-bg: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --accent-color: #38bdf8;
+    --text-main: #f8fafc;
+    --text-dim: #94a3b8;
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background: radial-gradient(circle at top left, #1e293b, #0f172a);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+/* Game Section Animations */
+.rotating {
+    transform: rotate(90deg);
+    transition: transform 0.5s ease-in-out;
+}
+
+/* Tic-Tac-Toe Game Layout */
+.game-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 2rem;
+    align-items: start;
+    margin-top: 1.5rem;
+}
+
+.game-main {
+    flex: 1;
+}
+
+.records-panel {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    color: var(--text-main);
+}
+
+.records-panel h4 {
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    text-align: center;
+    color: var(--accent-color);
+}
+
+.records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.record-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.record-level {
+    font-weight: 600;
+    color: var(--text-dim);
+}
+
+.record-count {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+@media (max-width: 850px) {
+    .game-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .records-panel {
+        order: 2;
+    }
+}
+
+/* Super Tic-Tac-Toe Styles */
+.super-board {
+    display: grid;
+    gap: 15px !important;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.mini-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.mini-board.active {
+    background: rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 15px var(--accent-color);
+}
+
+.mini-board.won-x::after,
+.mini-board.won-o::after {
+    content: attr(data-winner);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    z-index: 10;
+}
+
+.mini-board.won-x::after {
+    color: #f87171;
+}
+
+.mini-board.won-o::after {
+    color: #60a5fa;
+}
+
+.mini-cell {
+    width: 35px !important;
+    height: 35px !important;
+    font-size: 1.2rem !important;
+}
+
+@media (max-width: 600px) {
+    .mini-cell {
+        width: 25px !important;
+        height: 25px !important;
+        font-size: 1rem !important;
+    }
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    padding: 2rem;
+    text-align: center;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(to right, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    color: var(--text-dim);
+    margin-bottom: 3rem;
+    font-size: 1.1rem;
+}
+
+.input-section {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    padding: 2.5rem;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.input-section:hover {
+    transform: translateY(-5px);
+}
+
+.date-picker {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    outline: none;
+    margin-right: 1rem;
+    transition: border-color 0.2s;
+}
+
+.date-picker:focus {
+    border-color: var(--accent-color);
+}
+
+.btn-discover {
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.btn-discover:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+.result-section {
+    margin-top: 3rem;
+    display: none;
+    /* JS로 노출 */
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.zodiac-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.zodiac-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+}
+
+.zodiac-details {
+    color: var(--text-dim);
+    font-size: 1.2rem;
+}
+
+.population-section {
+    margin: 2rem 0;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: rgba(15, 23, 42, 0.4);
+    padding: 1.5rem 1.2rem;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stat-card:hover {
+    border-color: var(--accent-color);
+    background: rgba(56, 189, 248, 0.1);
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.gender-info {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.male {
+    color: #60a5fa;
+}
+
+.female {
+    color: #f472b6;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    letter-spacing: -0.02em;
+}
+
+.event-list {
+    text-align: left;
+    background: rgba(15, 23, 42, 0.3);
+    padding: 2rem;
+    border-radius: 20px;
+    margin-top: 2rem;
+}
+
+.event-item {
+    margin-bottom: 1.2rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    position: relative;
+    line-height: 1.6;
+    transition: background 0.2s;
+}
+
+.event-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.event-year {
+    font-weight: 800;
+    color: var(--accent-color);
+    margin-right: 0.8rem;
+    font-family: 'monospace';
+}
+
+.ad-container {
+    margin: 2.5rem 0;
+    min-height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.ad-placeholder {
+    display: none;
+    /* 실제 코드로 대체되었으므로 숨김 */
+}
+
+.generated-image {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    margin-top: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.game-section {
+    margin: 2.5rem 0;
+    background: rgba(15, 23, 42, 0.4);
+    padding: 2rem;
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    text-align: center;
+}
+
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.level-badge {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.8rem;
+}
+
+.game-title {
+    font-size: 1.2rem;
+    color: var(--text-main);
+}
+
+.level-desc {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 1.2rem;
+    word-break: keep-all;
+}
+
+.game-status {
+    font-size: 1rem;
+    color: var(--accent-color);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    min-height: 1.5rem;
+}
+
+.tictactoe-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 300px;
+    margin: 0 auto 1.5rem auto;
+}
+
+.cell {
+    aspect-ratio: 1/1;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.2rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cell:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.cell.x {
+    color: #38bdf8;
+    /* Blue */
+}
+
+.cell.o {
+    color: #f472b6;
+    /* Pink */
+}
+
+/* 중립말: X와 O가 섞인 보라색 그라데이션 */
+.cell.n {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(244, 114, 182, 0.2));
+    color: #a855f7;
+    border-color: #a855f7;
+}
+
+/* 사라질 예정인 말 (LV 2 전용) */
+.cell.fading {
+    opacity: 0.4;
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+        opacity: 0.4;
+    }
+
+    to {
+        transform: scale(0.95);
+        opacity: 0.2;
+    }
+}
+
+.cell.taken {
+    cursor: default;
+}
+
+.btn-reset {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid var(--glass-border);
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-reset:hover {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+}
+
+.video-section {
+    margin: 2.5rem 0;
+    text-align: center;
+    background: rgba(15, 23, 42, 0.3);
+    padding: 2rem;
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+}
+
+.video-title {
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.video-container {
+    width: 100%;
+    max-width: 320px;
+    /* Shorts optimized width */
+    margin: 0 auto;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    background: #000;
+}
+
+/* New UI Elements */
+.elements-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.element-item {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    text-align: center;
+}
+
+.element-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.element-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fbbf24;
+    /* Gold color */
+    margin-bottom: 0.3rem;
+}
+
+.element-meaning {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+.prompt-box {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(37, 99, 235, 0.1));
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 2rem;
+    border-radius: 24px;
+    margin: 2.5rem 0;
+    text-align: left;
+}
+
+.prompt-box h3 {
+    margin-bottom: 0.5rem;
+    color: var(--accent-color);
+}
+
+.prompt-desc {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+}
+
+.prompt-container {
+    display: flex;
+    gap: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 12px;
+    align-items: center;
+}
+
+#aiPromptText {
+    flex: 1;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    word-break: break-all;
+}
+
+.btn-copy {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-copy:hover {
+    filter: brightness(1.2);
+}
+
+.event-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.event-text {
+    flex: 1;
+}
+
+.btn-search {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+    border: 1px solid var(--glass-border);
+}
+
+.btn-search:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
