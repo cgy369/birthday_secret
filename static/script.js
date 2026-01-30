@@ -152,18 +152,33 @@ async function discover() {
 
         // Show result
         const isFirstShow = resultSection.style.display !== 'block';
-        resultSection.style.display = 'block';
-        resultSection.scrollIntoView({ behavior: 'smooth' });
-
-        // Load AdSense only once when section is shown
         if (isFirstShow) {
+            resultSection.style.display = 'block';
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+
+            // Robust AdSense loading
             setTimeout(() => {
-                try {
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                } catch (e) {
-                    console.error("AdSense load error:", e);
+                const adContainer = document.querySelector('.ad-container');
+                const adIns = adContainer?.querySelector('.adsbygoogle');
+
+                // Only push if width is detected and not already loaded/requested
+                if (adIns && adContainer.offsetWidth > 0 && !adIns.getAttribute('data-adsbygoogle-status')) {
+                    try {
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                        console.log("AdSense: Successfully pushed.");
+                    } catch (e) {
+                        console.error("AdSense: Push failed", e);
+                    }
+                } else {
+                    console.warn("AdSense: Container width is 0 or already loaded. Retrying once...");
+                    // One more try if width was 0
+                    setTimeout(() => {
+                        if (adIns && adContainer.offsetWidth > 0 && !adIns.getAttribute('data-adsbygoogle-status')) {
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        }
+                    }, 1000);
                 }
-            }, 500); // 500ms delay to ensure width is calculated
+            }, 800); // Wait for fadeInUp animation and layout
         }
 
     } catch (error) {
