@@ -151,8 +151,20 @@ async function discover() {
         }
 
         // Show result
+        const isFirstShow = resultSection.style.display !== 'block';
         resultSection.style.display = 'block';
         resultSection.scrollIntoView({ behavior: 'smooth' });
+
+        // Load AdSense only once when section is shown
+        if (isFirstShow) {
+            setTimeout(() => {
+                try {
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                } catch (e) {
+                    console.error("AdSense load error:", e);
+                }
+            }, 500); // 500ms delay to ensure width is calculated
+        }
 
     } catch (error) {
         alert(error.message);
