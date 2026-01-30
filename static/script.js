@@ -604,7 +604,13 @@ function computerSuperMove() {
 }
 
 function resetGame(isNewLevel = false) {
-    if (!isNewLevel && !confirm("정말 게임을 초기화하시겠습니까? (현재 레벨은 유지됩니다)")) return;
+    if (!isNewLevel) {
+        if (!confirm("정말 게임을 초기화하시겠습니까? (현재 레벨은 유지됩니다)")) return;
+        // 게임 진행 중에 다시 시작을 누르면 실패로 기록
+        if (gameActive) {
+            incrementRecord(currentLevel, 'fail');
+        }
+    }
 
     currentPlayer = "X";
     gameActive = true;
