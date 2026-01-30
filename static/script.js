@@ -196,27 +196,32 @@ const levelSettings = {
 let totalTurns = 0;
 
 // Record Management
-let clearRecords = {};
+let clearRecords = { wins: {}, failures: {} };
 async function loadGameRecords() {
     try {
         const response = await fetch('/api/records/get');
         const data = await response.json();
-        clearRecords = data.records || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
+        clearRecords.wins = data.wins || {};
+        clearRecords.failures = data.failures || {};
         updateRecordsUI();
     } catch (err) {
         console.error("Failed to load global records:", err);
     }
 }
 
-async function incrementRecord(level) {
+async function incrementRecord(level, type = 'win') {
     try {
         const response = await fetch('/api/records/increment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ level: level.toString() })
+            body: JSON.stringify({
+                level: level.toString(),
+                type: type
+            })
         });
         const data = await response.json();
-        clearRecords = data.records;
+        clearRecords.wins = data.wins;
+        clearRecords.failures = data.failures;
         updateRecordsUI();
     } catch (err) {
         console.error("Failed to update global records:", err);
@@ -232,7 +237,10 @@ function updateRecordsUI() {
         item.className = 'record-item';
         item.innerHTML = `
             <span class="record-level">LV ${i}</span>
-            <span class="record-count">${clearRecords[i] || 0}회 성공</span>
+            <div class="record-badges">
+                <span class="record-count success" title="성공">${clearRecords.wins[i] || 0}</span>
+                <span class="record-count failure" title="실패">${clearRecords.failures[i] || 0}</span>
+            </div>
         `;
         list.appendChild(item);
     }
@@ -329,7 +337,7 @@ function makeMove(index) {
         gameActive = false;
 
         if (currentPlayer === 'X') {
-            incrementRecord(currentLevel);
+            incrementRecord(currentLevel, 'win');
             if (currentLevel < 6) { // Level 6 added, so move until 6
                 setTimeout(() => {
                     alert(`축하합니다! ${currentLevel}단계를 클리어했습니다. 다음 레벨로 이동합니다.`);
@@ -345,6 +353,9 @@ function makeMove(index) {
             } else {
                 setTimeout(() => alert("🥇 전설로 남을 고수십니다! 모든 단계를 정복하셨습니다!"), 500);
             }
+        } else {
+            // Computer wins
+            incrementRecord(currentLevel, 'fail');
         }
         return;
     }
@@ -515,8 +526,10 @@ function makeSuperMove(bIdx, cIdx) {
         document.getElementById('gameStatus').innerText = `🏆 슈퍼 틱택토 최종 승리: ${winnerName}!`;
         gameActive = false;
         if (currentPlayer === 'X') {
-            incrementRecord(7);
+            incrementRecord(7, 'win');
             setTimeout(() => alert("🎆 전설로 남을 대기록입니다! 당신은 진정한 틱택토의 신입니다!"), 500);
+        } else {
+            incrementRecord(7, 'fail');
         }
         return;
     }

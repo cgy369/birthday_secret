@@ -80,13 +80,29 @@ body {
     color: var(--text-dim);
 }
 
+.record-badges {
+    display: flex;
+    gap: 6px;
+}
+
 .record-count {
-    background: var(--accent-color);
     color: var(--primary-bg);
     padding: 2px 10px;
     border-radius: 20px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 800;
+    min-width: 45px;
+    text-align: center;
+}
+
+.record-count.success {
+    background: #10b981;
+    /* Emerald Green */
+}
+
+.record-count.failure {
+    background: #f59e0b;
+    /* Amber */
 }
 
 @media (max-width: 850px) {
