@@ -100,16 +100,18 @@ body {
 }
 
 /* Super Tic-Tac-Toe Styles */
-.super-board {
+.tictactoe-board.super-board {
     display: grid;
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 15px !important;
+    max-width: 500px;
     padding: 10px;
     background: rgba(255, 255, 255, 0.05);
 }
 
 .mini-board {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 4px;
     padding: 5px;
     background: rgba(255, 255, 255, 0.1);
@@ -150,8 +152,9 @@ body {
 }
 
 .mini-cell {
-    width: 35px !important;
-    height: 35px !important;
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: 1/1;
     font-size: 1.2rem !important;
 }
 
@@ -435,11 +438,12 @@ h1 {
 }
 
 .tictactoe-board {
-    display: grid;
+    display: grid !important;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    max-width: 300px;
-    margin: 0 auto 1.5rem auto;
+    width: 100%;
+    max-width: 320px;
+    margin: 1rem auto;
 }
 
 .cell {

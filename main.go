@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"birth_web/utils"
@@ -54,6 +55,8 @@ func main() {
 
 	// 3. API 핸들러
 	http.HandleFunc("/api/discovery", handleDiscovery)
+	http.HandleFunc("/api/records/get", handleGetRecords)
+	http.HandleFunc("/api/records/increment", handleIncrementRecord)
 
 	// 4. [중요] 애드센스 ads.txt 서빙 핸들러 추가
 	http.HandleFunc("/ads.txt", func(w http.ResponseWriter, r *http.Request) {
@@ -278,4 +281,108 @@ func cleanWikitext(line string) string {
 	line = reTemplate.ReplaceAllString(line, "")
 
 	return strings.TrimSpace(line)
+}
+
+// --- Tic-Tac-Toe Global Records ---
+
+type GameRecords struct {
+	Wins     map[string]int `json:"wins"`
+	Failures map[string]int `json:"failures"`
+	// 하위 호환성용
+	OldRecords map[string]int `json:"records,omitempty"`
+}
+
+var (
+	recordsFile = "data/ttt_records.json"
+	recordsMu   sync.Mutex
+)
+
+func handleGetRecords(w http.ResponseWriter, r *http.Request) {
+	recordsMu.Lock()
+	defer recordsMu.Unlock()
+
+	data, err := os.ReadFile(recordsFile)
+	if err != nil {
+		initial := GameRecords{
+			Wins:     map[string]int{"1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0},
+			Failures: map[string]int{"1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0},
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(initial)
+		return
+	}
+
+	var records GameRecords
+	json.Unmarshal(data, &records)
+
+	// 데이터 마이그레이션: OldRecords(records 필드)가 있으면 Wins로 이동
+	if len(records.OldRecords) > 0 {
+		if records.Wins == nil {
+			records.Wins = make(map[string]int)
+		}
+		for k, v := range records.OldRecords {
+			records.Wins[k] += v
+		}
+		records.OldRecords = nil // 마이그레이션 후 삭제
+
+		// 마그레이션된 데이터 저장
+		if records.Failures == nil {
+			records.Failures = make(map[string]int)
+		}
+		newData, _ := json.Marshal(records)
+		os.WriteFile(recordsFile, newData, 0644)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(records)
+}
+
+func handleIncrementRecord(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Level string `json:"level"`
+		Type  string `json:"type"` // "win" or "fail"
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	recordsMu.Lock()
+	defer recordsMu.Unlock()
+
+	records := GameRecords{
+		Wins:     make(map[string]int),
+		Failures: make(map[string]int),
+	}
+	data, err := os.ReadFile(recordsFile)
+	if err == nil {
+		json.Unmarshal(data, &records)
+	}
+
+	// 맵 초기화 확인
+	if records.Wins == nil {
+		records.Wins = make(map[string]int)
+	}
+	if records.Failures == nil {
+		records.Failures = make(map[string]int)
+	}
+
+	// 증가 로직
+	if req.Type == "fail" {
+		records.Failures[req.Level]++
+	} else {
+		records.Wins[req.Level]++
+	}
+
+	// Save
+	newData, _ := json.Marshal(records)
+	os.WriteFile(recordsFile, newData, 0644)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(records)
 }

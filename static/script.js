@@ -83,18 +83,22 @@ async function discover() {
         statsGrid.innerHTML = '';
 
         if (data.population) {
+            console.log("Population data received:", data.population);
             const sortedCountries = Object.keys(data.population).sort((a, b) => {
-                const priority = { 'Global': 1, 'KR': 2 };
-                const aPrio = priority[a] || 3;
-                const bPrio = priority[b] || 3;
+                const priority = { 'global': 1, 'kr': 2, 'south korea': 2 };
+                const aKey = a.toLowerCase();
+                const bKey = b.toLowerCase();
+                const aPrio = priority[aKey] || 3;
+                const bPrio = priority[bKey] || 3;
                 if (aPrio !== bPrio) return aPrio - bPrio;
                 return a.localeCompare(b);
             });
-            console.log("DEBUG: Sorted Countries Order:", sortedCountries);
+            console.log("DEBUG: Final Sorted Order:", sortedCountries);
 
             const countryNames = {
                 'Global': '전세계',
                 'KR': '대한민국',
+                'South Korea': '대한민국',
                 'US': '미국',
                 'CN': '중국',
                 'JP': '일본',
@@ -193,15 +197,30 @@ let totalTurns = 0;
 
 // Record Management
 let clearRecords = {};
-function loadGameRecords() {
-    const saved = localStorage.getItem('birthWeb_ttt_records');
-    clearRecords = saved ? JSON.parse(saved) : { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
-    updateRecordsUI();
+async function loadGameRecords() {
+    try {
+        const response = await fetch('/api/records/get');
+        const data = await response.json();
+        clearRecords = data.records || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
+        updateRecordsUI();
+    } catch (err) {
+        console.error("Failed to load global records:", err);
+    }
 }
 
-function saveGameRecords() {
-    localStorage.setItem('birthWeb_ttt_records', JSON.stringify(clearRecords));
-    updateRecordsUI();
+async function incrementRecord(level) {
+    try {
+        const response = await fetch('/api/records/increment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level: level.toString() })
+        });
+        const data = await response.json();
+        clearRecords = data.records;
+        updateRecordsUI();
+    } catch (err) {
+        console.error("Failed to update global records:", err);
+    }
 }
 
 function updateRecordsUI() {
@@ -217,12 +236,6 @@ function updateRecordsUI() {
         `;
         list.appendChild(item);
     }
-}
-
-function incrementRecord(level) {
-    if (!clearRecords[level]) clearRecords[level] = 0;
-    clearRecords[level]++;
-    saveGameRecords();
 }
 
 function handleCellClick(clickedCellEvent) {
@@ -594,7 +607,7 @@ function resetGame(isNewLevel = false) {
 
     const board = document.getElementById('board');
     board.innerHTML = "";
-    board.className = "board"; // Default
+    board.className = "tictactoe-board"; // Fix: Match CSS selector
 
     if (currentLevel === 7) {
         board.classList.add('super-board');
